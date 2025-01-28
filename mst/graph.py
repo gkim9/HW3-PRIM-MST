@@ -26,6 +26,7 @@ class Graph:
             return np.loadtxt(f, delimiter=',')
     
     def check_input(self):
+        # checking if values in the diagonal of the graph are 0
         for node in range(self.adj_mat.shape[0]):
             print(range(self.adj_mat.shape[0]))
             if self.adj_mat[node][node] != 0:
@@ -63,13 +64,17 @@ class Graph:
                 the smallest edge becomes the new pi[v] and pred[v] becomes e
 
         """
+        # check the validity of input graph
         if self.check_input() == "Error":
             raise Exception(f"Tree is incorrect; weight along a diagonal is not 0")
+        
         self.num_nodes = self.adj_mat.shape[0]
         node_list = list(range(self.num_nodes))
+
         # initializing the mst with all weights of edges = 0
         self.mst = np.zeros((self.num_nodes, self.num_nodes))
 
+        # initializing all components / dictionaries / queues
         explored_nodes = set()
         edges = []
 
@@ -85,8 +90,8 @@ class Graph:
         for node in range(self.num_nodes):
             heapq.heappush(priority_queue, [pi_dict[node], node]) # placing the weight of the node in the front so that priority queue can be sorted by the weight
         
-        while priority_queue:
-            weight_u, node_u = heapq.heappop(priority_queue)
+        while priority_queue: # while queue is not empty
+            weight_u, node_u = heapq.heappop(priority_queue) # take first element of the priority queue (lowest weight)
 
             # Skip if already explored
             if node_u in explored_nodes:
@@ -94,9 +99,13 @@ class Graph:
 
             explored_nodes.add(node_u)
 
-            if node_u != start_node and pred_dict[node_u] is not None:
+            # if we have a known predecessor of the node we chose (meaning predecessor has been explored and in the explored set)
+            # add to the edge list that we'll reflect to reconstruct the final mst
+            if node_u != start_node and pred_dict[node_u] is not None: 
                 edges.append([pred_dict[node_u], node_u])
 
+            # for a given node, adding all nodes connected to it that has not yet been explored
+            # adding the other nodes + edges from it to the given node to priority so that the new lowest edge can be chosen
             for node_v, weight_v in enumerate(self.adj_mat[node_u]):
                 if node_v not in explored_nodes and weight_v != 0:
                     if weight_v < pi_dict[node_v]:
@@ -104,11 +113,10 @@ class Graph:
                         pred_dict[node_v] = node_u
                         heapq.heappush(priority_queue, [pi_dict[node_v], node_v])
 
+        # Construction of mst by reflecting the undirected-ness of the graph (making it symmetric along the diagonal)
         for node_u, node_v in edges:
             self.mst[node_u][node_v] = self.adj_mat[node_u][node_v]
             self.mst[node_v][node_u] = self.adj_mat[node_u][node_v]
-            print(edges)
-        print("THISISIT", self.mst)
 
 # example = Graph('data/small.csv')
 # example.construct_mst()
