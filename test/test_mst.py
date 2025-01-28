@@ -1,13 +1,17 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import pytest
 import numpy as np
-from mst import Graph
+from mst.graph import Graph
 from sklearn.metrics import pairwise_distances
-
 
 def check_mst(adj_mat: np.ndarray, 
               mst: np.ndarray, 
               expected_weight: int, 
-              allowed_error: float = 0.0001):
+              allowed_error: float = 0.0001,
+              ):
     """
     
     Helper function to check the correctness of the adjacency matrix encoding an MST.
@@ -35,6 +39,9 @@ def check_mst(adj_mat: np.ndarray,
             total += mst[i, j]
     assert approx_equal(total, expected_weight), 'Proposed MST has incorrect expected weight'
 
+    # number of edges in a minimum spanning tree is always equal to total number of nodes - 1 (since cannot be cyclic and goes through all nodes)
+    # counting the instances of all non-zero edges in mst and dividing by 2 since edges are double counted (i -> j == j -> i) to get number of edges in mst
+    assert np.count_nonzero(mst)/2 == mst.shape[0] - 1, "Incorrect amount of edges in minimum spanning tree."
 
 def test_mst_small():
     """
@@ -47,6 +54,7 @@ def test_mst_small():
     g.construct_mst()
     check_mst(g.adj_mat, g.mst, 8)
 
+print(test_mst_small())
 
 def test_mst_single_cell_data():
     """
@@ -64,11 +72,23 @@ def test_mst_single_cell_data():
     g.construct_mst()
     check_mst(g.adj_mat, g.mst, 57.263561605571695)
 
-
 def test_mst_student():
     """
     
     TODO: Write at least one unit test for MST construction.
+
+    Testing if the input graph has an edge from a node to iself with a weight not equal to 0.
     
     """
-    pass
+
+    # Input graph has a value of non-zero in the diagonal
+    graph = Graph('data/non_zero_diagonal.csv')
+    with pytest.raises(Exception):
+        graph.construct_mst()
+
+    # Input graph is not connected -- should not have the right number of edges to be a minimum spanning tree
+    not_connected = Graph('data/non_connected_example.csv')
+    not_connected.construct_mst()
+
+    with pytest.raises(AssertionError):
+        check_mst(not_connected.adj_mat, not_connected.mst, 9)
