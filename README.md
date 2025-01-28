@@ -2,6 +2,14 @@
 
 # HW 3: Prim's algorithm
 
+## Description
+Prim's algorithm can find the Minimum Spanning Tree (MST) of a graph, provided that the graph is fully connected and undirected. MST is a graph such that all vertices are connected with no cycles.
+
+The algorithm begins by picking an arbitrary starting vertex and by choosing the smallest edge from it, exploring the connected vertex. The newly explored vertex is added to the set of explored vertices, and the smallest edge from any of the vertices in the explored set to a vertex not in the explored set is added. This process continues until all nodes have been explored. 
+
+mst/graph.py will create an "mst" attribute of a numpy array containing the weights of the edges of the mst. To achieve this, we use the heapq module to create a sorted queue.
+
+## Provided README
 In this assignment, you'll implement Prim's algorithm, a non-trivial greedy algorithm used to construct minimum spanning trees. 
 
 ## Tasks
@@ -28,10 +36,6 @@ You will need following packages:
 - [pytest](https://docs.pytest.org/en/7.2.x/)
 
 We also strongly recommend you use the built-in [heapq](https://docs.python.org/3/library/heapq.html) module.
-
-## Completing the assignment
-
-Push your code to GitHub with passing unit tests, and submit a link to your repository through this [google form link](https://forms.gle/guyuWE6hsTiz34WTA)
 
 ## Grading
 
